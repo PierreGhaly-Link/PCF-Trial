@@ -114,9 +114,9 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
 
 
     /**
-	* Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
-	* @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
-	*/
+     * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
+     * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
+     */
     public updateView(context: ComponentFramework.Context<IInputs>, color?: string, grid?: string): void {
         this.contextObj = context;
 
@@ -138,7 +138,7 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
 
         //this.toggleLoadMoreButtonWhenNeeded(context.parameters.dataSetGrid);
 
-        //if (!(context.parameters.dataSetGridNew.loading || context.parameters.dataSetGridClosed.loading || context.parameters.dataSetGridResolved.loading)) {
+        if (!(context.parameters.dataSetGridNew.loading || context.parameters.dataSetGridClosed.loading || context.parameters.dataSetGridResolved.loading)) {
 
             // Get sorted columns on View
             let columnsOnView = this.getSortedColumnsOnView(context, grid);
@@ -155,8 +155,7 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
             //dataset.addColumn("Pierre");
 
             this.gridContainer.appendChild(this.createGridBody(context, columnsOnView, dataSet, color));
-        //}
-
+        }
         // this is needed to ensure the scroll bar appears automatically when the grid resize happens and all the tiles are not visible on the screen.
         this.mainContainer.style.maxHeight = window.innerHeight - this.gridContainer.offsetTop - 75 + "px";
     }
@@ -181,24 +180,63 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
      * @param context 
      * @return sorted columns object on View
      */
-    private getSortedColumnsOnView(context: ComponentFramework.Context<IInputs>): DataSetInterfaces.Column[] {
-        if (!context.parameters.dataSetGrid.columns) {
+    private getSortedColumnsOnView(context: ComponentFramework.Context<IInputs>, grid?: string): DataSetInterfaces.Column[] {
+        if (grid == 'new') {
+            if (!context.parameters.dataSetGridNew.columns) {
+                return [];
+            }
+
+            let columns = context.parameters.dataSetGridNew.columns
+                .filter(function (columnItem: DataSetInterfaces.Column) {
+                    // some column are supplementary and their order is not > 0
+                    return columnItem.order >= 0
+                }
+                );
+            // Sort those columns so that they will be rendered in order
+            columns.sort(function (a: DataSetInterfaces.Column, b: DataSetInterfaces.Column) {
+                return a.order - b.order;
+            });
+
+            return columns;
+
+        } else if (grid == 'closed') {
+            if (!context.parameters.dataSetGridClosed.columns) {
+                return [];
+            }
+
+            let columns = context.parameters.dataSetGridClosed.columns
+                .filter(function (columnItem: DataSetInterfaces.Column) {
+                    // some column are supplementary and their order is not > 0
+                    return columnItem.order >= 0
+                }
+                );
+            // Sort those columns so that they will be rendered in order
+            columns.sort(function (a: DataSetInterfaces.Column, b: DataSetInterfaces.Column) {
+                return a.order - b.order;
+            });
+
+            return columns;
+
+        } else if (grid == 'resolved') {
+            if (!context.parameters.dataSetGridResolved.columns) {
+                return [];
+            }
+
+            let columns = context.parameters.dataSetGridResolved.columns
+                .filter(function (columnItem: DataSetInterfaces.Column) {
+                    // some column are supplementary and their order is not > 0
+                    return columnItem.order >= 0
+                }
+                );
+            // Sort those columns so that they will be rendered in order
+            columns.sort(function (a: DataSetInterfaces.Column, b: DataSetInterfaces.Column) {
+                return a.order - b.order;
+            });
+
+            return columns;
+        } else {
             return [];
         }
-
-        let columns = context.parameters.dataSetGrid.columns
-            .filter(function (columnItem: DataSetInterfaces.Column) {
-                // some column are supplementary and their order is not > 0
-                return columnItem.order >= 0
-            }
-            );
-
-        // Sort those columns so that they will be rendered in order
-        columns.sort(function (a: DataSetInterfaces.Column, b: DataSetInterfaces.Column) {
-            return a.order - b.order;
-        });
-
-        return columns;
     }
 
     /**
@@ -211,16 +249,16 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
         let gridBody: HTMLDivElement = document.createElement("div");
 
         if (gridParam.sortedRecordIds.length > 0) {
-            this.newButton.textContent = "New cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
-            this.resolvedButton.textContent = "Resolved cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
-            this.closedButton.textContent = "Closed cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
+            this.newButton.textContent = "New cases (" + context.parameters.dataSetGridNew.sortedRecordIds.length + ")";
+            this.resolvedButton.textContent = "Resolved cases (" + context.parameters.dataSetGridResolved.sortedRecordIds.length + ")";
+            this.closedButton.textContent = "Closed cases (" + context.parameters.dataSetGridClosed.sortedRecordIds.length + ")";
 
 
             for (let currentRecordId of gridParam.sortedRecordIds) {
 
                 let gridRecord: HTMLDivElement = document.createElement("div");
                 gridRecord.classList.add("DataSetControl_grid-item");
-                gridRecord.addEventListener("click", this.onRowClick.bind(this));
+                //gridRecord.addEventListener("click", this.onRowClick.bind(this));
 
                 // Set the recordId on the row dom
                 gridRecord.setAttribute(RowRecordId, gridParam.records[currentRecordId].getRecordId());
@@ -273,18 +311,19 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
      * Row Click Event handler for the associated row when being clicked
      * @param event
      */
-    private onRowClick(event: Event): void {
-        let rowRecordId = (event.currentTarget as HTMLTableRowElement).getAttribute(RowRecordId);
+    //private onRowClick(event: Event): void {
+    //	let rowRecordId = (event.currentTarget as HTMLTableRowElement).getAttribute(RowRecordId);
 
-        if (rowRecordId) {
-            let entityReference = this.contextObj.parameters.dataSetGrid.records[rowRecordId].getNamedReference();
-            let entityFormOptions = {
-                entityName: entityReference.name,
-                entityId: entityReference.id.guid,
-            }
-            this.contextObj.navigation.openForm(entityFormOptions);
-        }
-    }
+    //	if(rowRecordId)
+    //	{
+    //		let entityReference = this.contextObj.parameters.dataSetGrid.records[rowRecordId].getNamedReference();
+    //		let entityFormOptions = {
+    //			entityName: entityReference.name,
+    //			entityId: entityReference.id.guid,
+    //		}
+    //		this.contextObj.navigation.openForm(entityFormOptions);
+    //	}
+    //}
 
     /**
      * Toggle 'LoadMore' button when needed
@@ -318,13 +357,13 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
     private reloadViewEvent(event: Event): void {
         switch (event.target) {
             case this.newButton:
-                this.updateView(this.contextObj, 'blue');
+                this.updateView(this.contextObj, 'blue', 'new');
                 break;
             case this.closedButton:
-                this.updateView(this.contextObj, 'red');
+                this.updateView(this.contextObj, 'red', 'closed');
                 break;
             case this.resolvedButton:
-                this.updateView(this.contextObj, 'green');
+                this.updateView(this.contextObj, 'green', 'resolved');
                 break;
             default:
                 this.updateView(this.contextObj);
