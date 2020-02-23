@@ -74,17 +74,17 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
         this.titleContainer = document.createElement("div");
 
         this.newButton = document.createElement("button");
-        this.newButton.textContent = "New cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
+        this.newButton.textContent = "New cases (" + context.parameters.dataSetGridNew.sortedRecordIds.length + ")";
         this.newButton.setAttribute("type", "button");
         this.newButton.addEventListener("click", this.reloadViewEvent.bind(this));
 
         this.resolvedButton = document.createElement("button");
-        this.resolvedButton.textContent = "Resolved cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
+        this.resolvedButton.textContent = "Resolved cases (" + context.parameters.dataSetGridResolved.sortedRecordIds.length + ")";
         this.resolvedButton.setAttribute("type", "button");
         this.resolvedButton.addEventListener("click", this.reloadViewEvent.bind(this));
 
         this.closedButton = document.createElement("button");
-        this.closedButton.textContent = "Closed cases (" + context.parameters.dataSetGrid.sortedRecordIds.length + ")";
+        this.closedButton.textContent = "Closed cases (" + context.parameters.dataSetGridClosed.sortedRecordIds.length + ")";
         this.closedButton.setAttribute("type", "button");
         this.closedButton.addEventListener("click", this.reloadViewEvent.bind(this));
 
@@ -114,17 +114,34 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
 
 
     /**
-     * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
-     * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
-     */
-    public updateView(context: ComponentFramework.Context<IInputs>, color?: string): void {
+	* Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
+	* @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
+	*/
+    public updateView(context: ComponentFramework.Context<IInputs>, color?: string, grid?: string): void {
         this.contextObj = context;
+
+        var dataSet;
+        switch (grid) {
+            case 'new':
+                dataSet = context.parameters.dataSetGridNew;
+                break;
+            case 'closed':
+                dataSet = context.parameters.dataSetGridClosed;
+                break;
+            case 'resolved':
+                dataSet = context.parameters.dataSetGridResolved;
+                break;
+            default:
+                dataSet = context.parameters.dataSetGridNew;
+                break;
+        }
+
         //this.toggleLoadMoreButtonWhenNeeded(context.parameters.dataSetGrid);
 
-        if (!context.parameters.dataSetGrid.loading) {
+        //if (!(context.parameters.dataSetGridNew.loading || context.parameters.dataSetGridClosed.loading || context.parameters.dataSetGridResolved.loading)) {
 
             // Get sorted columns on View
-            let columnsOnView = this.getSortedColumnsOnView(context);
+            let columnsOnView = this.getSortedColumnsOnView(context, grid);
 
             if (!columnsOnView || columnsOnView.length === 0) {
                 return;
@@ -137,8 +154,9 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
             //let dataset: ComponentFramework.PropertyTypes.DataSet;
             //dataset.addColumn("Pierre");
 
-            this.gridContainer.appendChild(this.createGridBody(context, columnsOnView, context.parameters.dataSetGrid, color));
-        }
+            this.gridContainer.appendChild(this.createGridBody(context, columnsOnView, dataSet, color));
+        //}
+
         // this is needed to ensure the scroll bar appears automatically when the grid resize happens and all the tiles are not visible on the screen.
         this.mainContainer.style.maxHeight = window.innerHeight - this.gridContainer.offsetTop - 75 + "px";
     }
