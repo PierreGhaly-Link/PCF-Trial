@@ -1,9 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\TSDataSetGrid",
-    "\\TSDataSetGrid\\strings"
+    "\\TSDataSetGrid"
   ],
-  "SelectedNode": "\\TS_DataSetGrid.pcfproj",
+  "SelectedNode": "\\TSDataSetGrid\\index.ts",
   "PreviewInSolutionExplorer": false
 }

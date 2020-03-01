@@ -45,6 +45,11 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
     // Table element created as part of this control's table
     private gridContainer: HTMLDivElement;
 
+    // DataSets
+    private dataSetNew: DataSet;
+    private dataSetClosed: DataSet;
+    private dataSetResolved: DataSet;
+
     // Button element created as part of this control
     //private loadPageButton: HTMLButtonElement;
 
@@ -110,6 +115,9 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
         //this.mainContainer.appendChild(this.loadPageButton);
         this.mainContainer.classList.add("DataSetControl_main-container");
         container.appendChild(this.mainContainer);
+
+        // Load Data @TODO
+        //context.parameters.dataSetGridNew = this.dataSetNew;
     }
 
 
@@ -150,9 +158,6 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
             while (this.gridContainer.firstChild) {
                 this.gridContainer.removeChild(this.gridContainer.firstChild);
             }
-
-            //let dataset: ComponentFramework.PropertyTypes.DataSet;
-            //dataset.addColumn("Pierre");
 
             this.gridContainer.appendChild(this.createGridBody(context, columnsOnView, dataSet, color));
         }
