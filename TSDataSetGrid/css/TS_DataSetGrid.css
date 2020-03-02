@@ -9,7 +9,14 @@
 	EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF  
 	MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. 
  */
- .SampleNamespace\.TSDataSetGrid .DataSetControl_main-container {
+
+.icon-class {
+    width: 100px;
+    margin: auto;
+    display: block;
+}
+
+.SampleNamespace\.TSDataSetGrid .DataSetControl_main-container {
     overflow-y: auto;
 }
 

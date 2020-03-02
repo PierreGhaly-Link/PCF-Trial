@@ -272,9 +272,8 @@ export class TSDataSetGrid implements ComponentFramework.StandardControl<IInputs
 
                 let icon = document.createElement("img");
                 icon.setAttribute("src", "resources/icon.png");
-                //icon.setAttribute("style", "width: 200");
-                //icon.setAttribute("style", "margin: auto");
                 icon.setAttribute("alt", "Icon");
+                icon.classList.add("icon-class");
                 gridRecord.appendChild(icon);
 
                 columnsOnView.forEach(function (columnItem, index) {
